@@ -19,7 +19,7 @@ class BatchTest extends FlatSpec with Matchers {
         neo.bufferQuery(countQuery, params)
 
         val results = (Json.parse(waitCompletion(neo.performBatch()()))).asInstanceOf[JsArray]
-        println(results)
+
         val beforeCount = parseCount(results, 0)
         val duringCount = parseCount(results, 2)
         val afterCount = parseCount(results, 4)

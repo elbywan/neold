@@ -16,7 +16,7 @@ object Neold {
     implicit val executor = dispatch.Defaults.executor
 
     //Void action
-    implicit val doneNull : Done = { x: String => () }
+    private implicit val doneNull : Done = { x: String => () }
 
     /**
      * Convenience method, creates a new configured instance of the Neold class.
@@ -48,7 +48,7 @@ object Neold {
 
         response.onSuccess{
             case content => {
-                content
+                done(content)
             }
         }
 

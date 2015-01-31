@@ -1,0 +1,15 @@
+language: scala
+scala:
+   - 2.10.4
+   - 2.11.5
+branches:
+    only:
+      - master
+      - dev
+
+before_install:
+     - ./travis_neo4j_setup.sh $NEO4J_VERSION
+     - ./lib/neo4j/bin/neo4j start || ( cat ./lib/neo4j/data/log/*.log && exit 1 )
+env:
+    - NEO4J_VERSION="2.1.6"
+    - NEO4J_VERSION="2.0.4"
