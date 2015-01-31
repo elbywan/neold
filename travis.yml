@@ -1,0 +1,10 @@
+language: scala
+scala:
+   - 2.10.4
+   - 2.11.5
+services:
+  - neo4j
+branches:
+    only:
+      - master
+      - dev
