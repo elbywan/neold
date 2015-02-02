@@ -1,4 +1,4 @@
-| Neold | [![Build Status](https://travis-ci.org/elbywan/neold.svg?branch=master)](https://travis-ci.org/elbywan/neold)
+| Neold | [![Build Status](https://travis-ci.org/elbywan/neold.svg?branch=dev)](https://travis-ci.org/elbywan/neold)
 =====
 
 **Neold** is an high performance, programmer-friendly asynchronous Neo4j REST client driver written in scala.
