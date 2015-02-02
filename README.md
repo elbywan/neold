@@ -3,6 +3,13 @@
 
 **Neold** is an high performance, programmer-friendly asynchronous Neo4j REST client driver written in scala.
 
+------
+
+- Main branch : releases.
+- Dev branch : snapshots.
+
+------
+
 ##Installation
 
 Add the following files to your sbt build file :
