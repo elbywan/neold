@@ -29,7 +29,7 @@ Neold can interact with the [Transactional endpoint](http://neo4j.com/docs/stabl
 *All the sample code below require the following import line :*
 `import org.neold.core.Neold, org.neold.core.Neold._`
 
-*If you want to copy/paste these code snippets in the sbt console, don't forget that they are <b>asynchronous</b>. You <b>have</b> to keep the main thread from exiting to see the results.*
+*If you want to copy/paste these code snippets somewhere, don't forget that they are <b>asynchronous</b>. You <b>have</b> to keep the main thread from exiting to see the results.*
 
 *To use the library <b>synchronously</b> :*
 ```
@@ -43,12 +43,23 @@ val result = Await.result(future, Duration.create(5, TimeUnit.SECONDS))
 
 #### Neold setup
 
+#####Server location
+
 ```
 //Setups Neold with the default endpoint : http://localhost:7474/db/data
 Neold("localhost", 7474, "db/data")
 Neold("localhost", 7474)
 Neold()
 //Those 3 lines are equivalent
+```
+
+#####Authentication
+
+Provide your [authorization token](http://neo4j.com/docs/snapshot/rest-api-security.html#rest-api-security-getting-started)  in the `token` parameter.
+The `secure` flag (default to false) controls whether the request is sent over https.
+
+```
+Neold(token = "YOUR_ACCESS_TOKEN", secure = true)
 ```
 
 #### On shutdown
@@ -158,6 +169,56 @@ neo.performBatch(){ result: String =>
 }
 ```
 
+### Error handling
+
+As all functions return Future objects, the methods `onSuccess` and `onFailure` can be used to check whether the call was successful or not.
+
+```
+//Incorrect Neo4j coordinates
+val neo = Neold("badUrl!")
+val query = "Not important"
+neo.executeImmediate1(query).onFailure{
+    case f : Exception => throw f
+}
+```
+
+### Concurrency handling
+
+To synchronize your calls, for instance inside a transaction you can use the Scala comprehensions.
+
+If you are not familiar with these concepts the Dispatch homepage contains an excellent [guide](http://dispatch.databinder.net/Working+with+multiple+futures.html).
+
+Below an example of a synchronized transaction :
+
+```
+val neo = Neold()
+val countQuery = "MATCH (n: UserNode) RETURN count(n) as total"
+val createQuery = "CREATE (n:UserNode {name: {name}}) RETURN n"
+val deleteQuery = "MATCH (n:UserNode) DELETE n"
+neo.initTransaction(countQuery){
+    transaction => countBefore : String =>
+        println(countBefore)
+        //Synced
+        for{
+            create1 <- transaction.post1(createQuery, Map("name" -> "Toto"))
+            countPlusOne <- transaction.post1(countQuery)
+            create2 <- transaction.post1(createQuery, Map("name" -> "Titi"))
+            countPlusTwo <- transaction.post1(countQuery)
+            deletion <- transaction.post1("MATCH (n:UserNode) DELETE n")
+            countZero <- transaction.post1(countQuery)
+            rollBack <- transaction.rollback()
+        } yield{
+            println(create1)
+            println(countPlusOne)
+            println(create2)
+            println(countPlusTwo)
+            println(deletion)
+            println(countZero)
+            println(rollBack)
+        }
+}
+```
+
 ##Dependencies
 
 The following libraries are used :
@@ -167,7 +228,5 @@ The following libraries are used :
 
 ##TODO
 
-- Monads in the transaction scope to automatically synchronize calls
-- Secure auth & https
 - Full REST API support
-- Json conversion to scala data types
+- API response encapsulation
