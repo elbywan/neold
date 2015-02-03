@@ -23,9 +23,11 @@ object Neold {
      * @param host Neo4j hostname. (Default: localhost)
      * @param port Neo4j port. (Default: 7474)
      * @param endpoint Location of the REST endpoint. (Default: "db/data")
+     * @param token Authentication token
+     * @param secure Https secure flag
      * @return
      */
-    def apply(host: String = "localhost", port: Int = 7474, endpoint: String = "db/data") : Neold = {
+    def apply(host: String = "localhost", port: Int = 7474, endpoint: String = "db/data", token : String = "", secure : Boolean = false) = {
         new Neold(host,
             port,
             endpoint = {
@@ -33,7 +35,7 @@ object Neold {
                     endpoint substring 1
                 else
                     endpoint
-            } split "/")
+            } split "/", token, secure)
     }
 
     /**
@@ -67,14 +69,27 @@ object Neold {
  * @param host Neo4j hostname. (Default: localhost)
  * @param port Neo4j port. (Default: 7474)
  * @param endpoint Location of the REST endpoint. (Default: ["db", "data"])
+ * @param token Authentication token
+ * @param secure Https secure flag
  */
-class Neold(host: String = "localhost", port: Int = 7474, endpoint: Seq[String] = Seq("db", "data")){
+class Neold private(host: String = "localhost", port: Int = 7474, endpoint: Seq[String] = Seq("db", "data"), token : String = "", secure : Boolean = false){
 
     import org.neold.core.Neold._
 
-    private val neoSvc = endpoint.foldLeft(dispatch.host(host, port)){
-        (svc, str) => svc / str
-    }.addHeader("X-Stream", "true")
+    private val neoSvc = {
+        var svc = endpoint.foldLeft(dispatch.host(host, port)){
+            (svc, str) => svc / str
+        }.addHeader("X-Stream", "true")
+
+        if(!token.isEmpty)
+            svc = svc.addHeader("Authorization", "Basic realm=Neo4j "+ new sun.misc.BASE64Encoder().encode((":" + token).getBytes))
+
+        if(secure)
+            svc.secure
+        else
+            svc
+
+    }
 
     /* ---------------------- */
     /*         Indexes        */
