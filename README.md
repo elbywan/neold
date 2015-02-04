@@ -12,7 +12,7 @@
 
 ##Installation
 
-Add the following files to your sbt build file :
+Add the following lines to your sbt build file :
 
 ```
 resolvers += Resolver.sonatypeRepo("snapshots")
