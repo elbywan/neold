@@ -9,6 +9,9 @@ branches:
       - master
       - dev
 
+secure:
+    - "QECALf65xhNPDES/Ttl9qsoUtxT8uOjyadcumYySskyLVgHEK5cthIFwlDGCJp6wVPnzEz5MznD08IXNA87Ug0z6XxcHVBBEeehVPI+H1EZhhz4xKz5/gIHJjiyKh4JdZHwn090ByClj6O1F/mM0PtKEK0YUE8gsXRm3ZW8gZOU="
+
 before_install:
      - openssl aes-256-cbc -K $encrypted_b5413fec1356_key -iv $encrypted_b5413fec1356_iv -in sonatype.sbt.enc -out ~/.sbt/0.13/sonatype.sbt -d
      - ./travis_neo4j_setup.sh $NEO4J_VERSION
@@ -17,5 +20,9 @@ env:
     - NEO4J_VERSION="2.1.6"
     - NEO4J_VERSION="2.0.4"
 
+script:
+    - sbt ++$TRAVIS_SCALA_VERSION clean coverage test
+
 after_success:
+    - sbt ++$TRAVIS_SCALA_VERSION coveralls
     - test $TRAVIS_PULL_REQUEST == "false" && test $NEO4J_VERSION == "2.1.6" && test $TRAVIS_BRANCH == "dev" && test $TRAVIS_SCALA_VERSION == "2.11.5" && sbt +publish
