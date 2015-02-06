@@ -83,8 +83,10 @@ neo.executeImmediate1(query, Map("PROPERTY" -> "myProperty")){
 
 //Multiple statements
 val countQuery = """MATCH n RETURN n"""
-val statements = (query -> params) :: (countQuery -> params) :: List()
-neo.executeImmediate(statements){
+val insertQuery = """CREATE (n:Node {PROPERTIES}) RETURN n"""
+val params = Map("PROPERTIES" -> """{ "prop1": "firstProperty", "prop2": "secondProperty" }""")
+val statements = (insertQuery -> params) :: (countQuery -> params) :: List()
+neo.executeImmediate(statements : _*){
     //On success
     result: String => println(result)
 }
