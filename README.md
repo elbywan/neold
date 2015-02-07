@@ -15,9 +15,9 @@
 Add the following lines to your sbt build file :
 
 ```
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers += Resolver.sonatypeRepo("releases")
 
-libraryDependencies += "com.github.elbywan" %% "neold" % "0.1-SNAPSHOT"
+libraryDependencies += "com.github.elbywan" %% "neold" % "0.1"
 ```
 
 To play around with the library, type `sbt console`.
