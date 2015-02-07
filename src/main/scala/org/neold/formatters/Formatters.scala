@@ -15,17 +15,24 @@ object FormatterTools{
     }
 
     /**
-     * Escape Neo4J special characters.
-     * @param parameters Un-escaped parameter list
+     * Escape Neo4J & Json special characters.
+     * @param parameters Un-escaped parameter list.
      * @return Escaped parameter list.
      */
     def escapeParameters(parameters: Map[String, Any]) : Map[String, Any] = {
         parameters.map { kv: (String, Any) =>
-            (kv._1, escapeSpecialChars(kv._2.toString))
+            val fullyTrimmed = kv._2.toString.replaceAll("\\A\\s+", "").replaceAll("\\s+\\z", "")
+            val firstChar = fullyTrimmed.charAt(0)
+            if(firstChar != '{' && firstChar != '[')
+                (kv._1, "\""+escapeSpecialChars(kv._2.toString)+"\"")
+            else
+                (kv._1, fullyTrimmed)
         }
     }
 
 }
+
+import FormatterTools._
 
 /**
  * Formatter for the Transactional API.
@@ -75,11 +82,11 @@ object TransactionalFormatter {
             |   "statement" : "$query",
             |   "parameters" : {
             |       ${
-                        FormatterTools.escapeParameters(parameters).foldLeft("") { (acc, prop) =>
+                        escapeParameters(parameters).foldLeft("") { (acc, prop) =>
                             if(acc.length == 0)
-                                acc + s""""${prop._1}": "${prop._2}""""
+                                acc + s""""${prop._1}": ${prop._2}"""
                             else
-                                acc + s""", "${prop._1}": "${prop._2}""""
+                                acc + s""", "${prop._1}": ${prop._2}"""
                         }
                     }
             |   }
@@ -106,11 +113,11 @@ object LegacyCypherFormatter {
             |   "query" : "$query",
             |   "params" : {
             |       ${
-                        FormatterTools.escapeParameters(parameters).foldLeft("") { (acc, prop) =>
+                        escapeParameters(parameters).foldLeft("") { (acc, prop) =>
                             if(acc.length == 0)
-                                acc + s""""${prop._1}": "${prop._2}""""
+                                acc + s""""${prop._1}": ${prop._2}"""
                             else
-                                acc + s""", "${prop._1}": "${prop._2}""""
+                                acc + s""", "${prop._1}": ${prop._2}"""
                         }
                     }
             |   }

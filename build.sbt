@@ -2,6 +2,7 @@ name := "neold"
 organization := "com.github.elbywan"
 version := "0.1-SNAPSHOT"
 scalaVersion := "2.11.5"
+crossScalaVersions := Seq("2.10.4", "2.11.5")
 
 val dispatchVersion    = "0.11.2"
 val playVersion        = "2.4.0-M2"
@@ -11,7 +12,7 @@ val scalatestVersion   = "2.2.1"
 libraryDependencies ++= Seq(
     "net.databinder.dispatch" %% "dispatch-core" % dispatchVersion,
     "org.slf4j" % "slf4j-simple" % sl4jVersion,
-    "com.typesafe.play" %% "play-json" % playVersion % Test,
+    "com.typesafe.play" %% "play-json" % playVersion,
     "org.scalatest" %% "scalatest" % scalatestVersion % Test
 )
 
