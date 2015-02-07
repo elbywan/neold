@@ -9,8 +9,8 @@ import scala.collection.mutable.ArrayBuffer
 object Neold {
 
     //Utility types
-    type Done = (String => _)
     type Statement = (String, Map[String, Any])
+    type Done = String => _
 
     //Implicit dispatch thread pool
     implicit val executor = dispatch.Defaults.executor

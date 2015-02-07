@@ -2,7 +2,8 @@ package org.neold
 
 import TestingTools._
 import org.scalatest._
-import org.neold.core.Neold, org.neold.core.Neold._
+import org.neold.adapters.Adapters._
+import org.neold.adapters.Adapters.TransactionalAdapter._
 import play.api.libs.json._
 
 class TransactionalTest extends FlatSpec with Matchers {
@@ -28,11 +29,11 @@ class TransactionalTest extends FlatSpec with Matchers {
     
     it can "execute and commit a single statement" in {
         def getCount() : Int = {
-            val jsonResults = Json.parse(waitCompletion(neo.executeImmediate1(countQuery, params)())) \ "results"
-            ((jsonResults(0) \ "data")(0) \ "row")(0).as[Int]
+            val resultsOpt = toOption(waitCompletion(neo.executeImmediate1(countQuery, params)()))
+            mapResultRow(resultsOpt){ _("count(n)").toInt }.getOrElse(-1)
         }
         val beforeCount = getCount()
-        waitCompletion(neo.executeImmediate1(insertQuery, params)())
+        waitCompletion(neo.executeImmediate1(insertQueryObjectParam, paramsObject)())
         val duringCount = getCount()
         waitCompletion(neo.executeImmediate1(deleteQuery, params)())
         val afterCount = getCount()
@@ -62,12 +63,14 @@ class TransactionalTest extends FlatSpec with Matchers {
 
     it can "execute and rollback transactions" in {
         def getCount(rawString : String) : Int = {
-            val jsonResults = Json.parse(rawString) \ "results"
-            ((jsonResults(0) \ "data")(0) \ "row")(0).as[Int]
+            val resultsEither = toEither(rawString)
+            resultsEither.fold(
+                _ => -1,
+                _(0)(0)("count(n)").toInt)
         }
         def getCountImmediate() : Int = {
-            val jsonResults = Json.parse(waitCompletion(neo.executeImmediate1(countQuery, params)())) \ "results"
-            ((jsonResults(0) \ "data")(0) \ "row")(0).as[Int]
+            val resultsOpt = toOption(waitCompletion(neo.executeImmediate1(countQuery, params)()))
+            mapResultRow(resultsOpt){ _("count(n)").toInt }.getOrElse(-1)
         }
 
         waitCompletion(neo.initTransaction(countQuery, params){t => s:String => ()}) match {
@@ -85,12 +88,12 @@ class TransactionalTest extends FlatSpec with Matchers {
 
     it can "execute and commit transactions" in {
         def getCount(rawString : String) : Int = {
-            val jsonResults = Json.parse(rawString) \ "results"
-            ((jsonResults(0) \ "data")(0) \ "row")(0).as[Int]
+            val resultsOpt = toOption(rawString)
+            mapResultRow(resultsOpt){ _("count(n)").toInt }.getOrElse(-1)
         }
         def getCountImmediate() : Int = {
-            val jsonResults = Json.parse(waitCompletion(neo.executeImmediate1(countQuery, params)())) \ "results"
-            ((jsonResults(0) \ "data")(0) \ "row")(0).as[Int]
+            val resultsOpt = toOption(waitCompletion(neo.executeImmediate1(countQuery, params)()))
+            mapResultRow(resultsOpt){ _("count(n)").toInt }.getOrElse(-1)
         }
 
         waitCompletion(neo.initTransaction(countQuery, params){t => s:String => ()}) match {

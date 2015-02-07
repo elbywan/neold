@@ -12,7 +12,7 @@ val scalatestVersion   = "2.2.1"
 libraryDependencies ++= Seq(
     "net.databinder.dispatch" %% "dispatch-core" % dispatchVersion,
     "org.slf4j" % "slf4j-simple" % sl4jVersion,
-    "com.typesafe.play" %% "play-json" % playVersion % Test,
+    "com.typesafe.play" %% "play-json" % playVersion,
     "org.scalatest" %% "scalatest" % scalatestVersion % Test
 )
 

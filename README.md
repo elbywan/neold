@@ -171,6 +171,69 @@ neo.performBatch(){ result: String =>
 }
 ```
 
+### Result handling
+
+Every Neo4j result is returned as a raw Json string by default to provide optimal performance.
+You can either use the Json library of you choice to exploit the data, or use the included adapters and helper methods.
+
+Adapters take a Json string as a parameter, and return an Option or an Either object.
+
+#### Transactional Adapter
+
+Below a small sample of code which should explain how Adapters work :
+
+```
+import org.neold.adapters.Adapters._
+import org.neold.adapters.Adapters.TransactionalAdapter._
+
+val neo = Neold()
+val query = """CREATE (n:Node {prop: {PROPERTY}}) RETURN n.prop as prop"""
+neo.executeImmediate1(query, Map("PROPERTY" -> "myProperty")){ result : String =>
+    //Maps the results to an Option value containing two nested arrays and a map
+    //First array : result index
+    //Second array : row index
+    //Map : column name -> value
+    //If there are errors, None
+    val resultsOpt = toOption(result)
+
+    //Helper method, by default maps the value at position (result 0 / row 0)
+    //Equivalent to resultsOpt.map{ _(0)(0)("prop")}
+    println(mapResultRow(resultsOpt){ _("prop")}.getOrElse(""))
+
+    //Maps the results to a Left value containing the same two arrays / map as above
+    //If there are errors, then a Right value is assigned, containing Errors as an Array[(code, message)]
+    val resultsEither = toEither(result)
+    resultsEither.fold(
+        _.foreach{error => println(error)},
+        results => println(results(0)(0)("prop"))
+    )
+}
+```
+
+#### Batch Adapter
+
+Same as above :
+
+```
+import org.neold.adapters.Adapters._
+import org.neold.adapters.Adapters.BatchAdapter._
+
+val neo = Neold()
+val query = """CREATE (n:Node {prop: {PROPERTY}}) RETURN n.prop as prop"""
+
+neo.bufferQuery(query, Map("PROPERTY" -> "myProperty"))
+neo.performBatch(){ result : String =>
+    val resultsOpt = toOption(result)
+    println(mapResultRow(resultsOpt){ _("prop")}.getOrElse(""))
+
+    val resultsEither = toEither(result)
+    resultsEither.fold(
+            _.foreach{error => println(error)},
+            results => println(results(0)(0)("prop"))
+        )
+}
+```
+
 ### Error handling
 
 As all functions return Future objects, the methods `onSuccess` and `onFailure` can be used to check whether the call was successful or not.
@@ -226,9 +289,8 @@ neo.initTransaction(countQuery){
 The following libraries are used :
 
 - [Dispatch](https://github.com/dispatch/reboot) : asynchronous HTTP interaction library.
-- [play-json](https://www.playframework.com/documentation/2.4.0-M2/ScalaJson) : Json handling library
+- [play-json](https://www.playframework.com/documentation/2.4.0-M2/ScalaJson) : Json parsing library.
 
 ##TODO
 
 - Full REST API support
-- API response encapsulation
