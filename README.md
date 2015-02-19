@@ -14,7 +14,7 @@
 
 Add the following lines to your sbt build file :
 
-```
+```scala
 resolvers += Resolver.sonatypeRepo("releases")
 
 libraryDependencies += "com.github.elbywan" %% "neold" % "0.1"
@@ -32,7 +32,7 @@ Neold can interact with the [Transactional endpoint](http://neo4j.com/docs/stabl
 *If you want to copy/paste these code snippets somewhere, don't forget that they are <b>asynchronous</b>. You <b>have</b> to keep the main thread from exiting to see the results.*
 
 *To use the library <b>synchronously</b> :*
-```
+```scala
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import java.util.concurrent.TimeUnit
@@ -45,7 +45,7 @@ val result = Await.result(future, Duration.create(5, TimeUnit.SECONDS))
 
 #####Server location
 
-```
+```scala
 //Setups Neold with the default endpoint : http://localhost:7474/db/data
 Neold("localhost", 7474, "db/data")
 Neold("localhost", 7474)
@@ -58,7 +58,7 @@ Neold()
 Provide your [authorization token](http://neo4j.com/docs/snapshot/rest-api-security.html#rest-api-security-getting-started)  in the `token` parameter.
 The `secure` flag (default to false) controls whether the request is sent over https.
 
-```
+```scala
 Neold(token = "YOUR_ACCESS_TOKEN", secure = true)
 ```
 
@@ -71,7 +71,7 @@ The transactional endpoint is the default way to interact with Neo4j.
 
 ####Executing statements and commiting in a single step
 
-```
+```scala
 val neo = Neold()
 
 //Single statement
@@ -96,7 +96,7 @@ neo.executeImmediate(statements : _*){
 
 *Note: The examples below post one query at a time. It is possible to post multiple queries in a single call.*
 
-```
+```scala
 val neo = Neold()
 val countQuery = """MATCH (n:Node {prop: {PROPERTY}}) RETURN n"""
 val insertQuery = """CREATE (n:Node {prop: {PROPERTY}}) RETURN n"""
@@ -105,7 +105,7 @@ val parameters = Map("PROPERTY" -> "MyProperty")
 
 ##### Opening a transaction
 
-```
+```scala
 neo.initTransaction(countQuery, parameters){ transaction => result : String =>
     //Transaction scope
     println(result)
@@ -114,7 +114,7 @@ neo.initTransaction(countQuery, parameters){ transaction => result : String =>
 
 ##### Posting a statement to an open transaction
 
-```
+```scala
 neo.initTransaction(countQuery, parameters){ transaction => result : String =>
     transaction.post1(insertQuery, parameters){ result : String =>
         //Print the json result
@@ -125,7 +125,7 @@ neo.initTransaction(countQuery, parameters){ transaction => result : String =>
 
 ##### Commit a transaction
 
-```
+```scala
 neo.initTransaction(countQuery, parameters){ transaction => result : String =>
     transaction.post1(insertQuery, parameters){ result : String =>
         //When done, commit
@@ -136,7 +136,7 @@ neo.initTransaction(countQuery, parameters){ transaction => result : String =>
 
 ##### Rollback a transaction
 
-```
+```scala
 neo.initTransaction(countQuery, parameters){ transaction => result : String =>
     transaction.post1(insertQuery, parameters){ result : String =>
         //When done, rollback
@@ -152,7 +152,7 @@ Statements are buffered locally, before being sent to the endpoint for processin
 
 #### Adding statements to the buffer
 
-```
+```scala
 val neo = Neold()
 val countQuery = """MATCH (n:Node {prop: {PROPERTY}}) RETURN n"""
 val insertQuery = """CREATE (n:Node {prop: {PROPERTY}}) RETURN n"""
@@ -165,7 +165,7 @@ neo.bufferQuery(countQuery, parameters)
 
 #### Executing the batch queue
 
-```
+```scala
 neo.performBatch(){ result: String =>
     println(result)
 }
@@ -182,7 +182,7 @@ Adapters take a Json string as a parameter, and return an Option or an Either ob
 
 Below a small sample of code which should explain how Adapters work :
 
-```
+```scala
 import org.neold.adapters.Adapters._
 import org.neold.adapters.Adapters.TransactionalAdapter._
 
@@ -214,7 +214,7 @@ neo.executeImmediate1(query, Map("PROPERTY" -> "myProperty")){ result : String =
 
 Same as above :
 
-```
+```scala
 import org.neold.adapters.Adapters._
 import org.neold.adapters.Adapters.BatchAdapter._
 
@@ -238,7 +238,7 @@ neo.performBatch(){ result : String =>
 
 As all functions return Future objects, the methods `onSuccess` and `onFailure` can be used to check whether the call was successful or not.
 
-```
+```scala
 //Incorrect Neo4j coordinates
 val neo = Neold("badUrl!")
 val query = "Not important"
@@ -255,7 +255,7 @@ If you are not familiar with these concepts the Dispatch homepage contains an ex
 
 Below an example of a synchronized transaction :
 
-```
+```scala
 val neo = Neold()
 val countQuery = "MATCH (n: UserNode) RETURN count(n) as total"
 val createQuery = "CREATE (n:UserNode {name: {name}}) RETURN n"
