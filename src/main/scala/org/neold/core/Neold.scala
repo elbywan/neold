@@ -2,6 +2,7 @@ package org.neold.core
 
 import com.ning.http.client.Response
 import dispatch._
+import org.neold.formatters.FormatterTools.EscapedString
 import org.neold.formatters.{LegacyCypherFormatter, TransactionalFormatter}
 
 import scala.collection.mutable.ArrayBuffer
@@ -11,6 +12,11 @@ object Neold {
     //Utility types
     type Statement = (String, Map[String, Any])
     type Done = String => _
+
+    //Force string escaping
+    def :?(str: String) : EscapedString = {
+        new EscapedString(str)
+    }
 
     //Implicit dispatch thread pool
     implicit val executor = dispatch.Defaults.executor
