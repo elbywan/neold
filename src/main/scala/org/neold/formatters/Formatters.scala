@@ -22,7 +22,7 @@ object FormatterTools{
     def escapeParameters(parameters: Map[String, Any]) : Map[String, Any] = {
         parameters.map { kv: (String, Any) =>
             val fullyTrimmed = kv._2.toString.replaceAll("\\A\\s+", "").replaceAll("\\s+\\z", "")
-            val firstChar = fullyTrimmed.charAt(0)
+            val firstChar = if(fullyTrimmed.length > 0) fullyTrimmed.charAt(0) else 0
             if(firstChar != '{' && firstChar != '[')
                 (kv._1, "\""+escapeSpecialChars(kv._2.toString)+"\"")
             else
