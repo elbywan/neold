@@ -55,11 +55,11 @@ Neold()
 
 #####Authentication
 
-Provide your [authorization token](http://neo4j.com/docs/snapshot/rest-api-security.html#rest-api-security-getting-started)  in the `token` parameter.
+Provide your [user and password](http://neo4j.com/docs/stable/rest-api-security.html#rest-api-authenticate-to-access-the-server) in the `username` and `password` parameters.
 The `secure` flag (default to false) controls whether the request is sent over https.
 
 ```scala
-Neold(token = "YOUR_ACCESS_TOKEN", secure = true)
+Neold(username = "Joe", password = "Dalton", secure = true)
 ```
 
 #### On shutdown

@@ -29,11 +29,13 @@ object Neold {
      * @param host Neo4j hostname. (Default: localhost)
      * @param port Neo4j port. (Default: 7474)
      * @param endpoint Location of the REST endpoint. (Default: "db/data")
-     * @param token Authentication token
+     * @param username Username
+     * @param password Password
      * @param secure Https secure flag
      * @return
      */
-    def apply(host: String = "localhost", port: Int = 7474, endpoint: String = "db/data", token : String = "", secure : Boolean = false) = {
+    def apply(host: String = "localhost", port: Int = 7474, endpoint: String = "db/data", username : String = "",
+              password : String = "", secure : Boolean = false) = {
         new Neold(host,
             port,
             endpoint = {
@@ -41,7 +43,7 @@ object Neold {
                     endpoint substring 1
                 else
                     endpoint
-            } split "/", token, secure)
+            } split "/", username, password, secure)
     }
 
     /**
@@ -75,10 +77,12 @@ object Neold {
  * @param host Neo4j hostname. (Default: localhost)
  * @param port Neo4j port. (Default: 7474)
  * @param endpoint Location of the REST endpoint. (Default: ["db", "data"])
- * @param token Authentication token
+ * @param username Username
+ * @param password Password
  * @param secure Https secure flag
  */
-class Neold private(host: String = "localhost", port: Int = 7474, endpoint: Seq[String] = Seq("db", "data"), token : String = "", secure : Boolean = false){
+class Neold private(host: String = "localhost", port: Int = 7474, endpoint: Seq[String] = Seq("db", "data"),
+                    username : String = "", password: String = "", secure : Boolean = false){
 
     import org.neold.core.Neold._
 
@@ -87,8 +91,8 @@ class Neold private(host: String = "localhost", port: Int = 7474, endpoint: Seq[
             (svc, str) => svc / str
         }.addHeader("X-Stream", "true")
 
-        if(!token.isEmpty)
-            svc = svc.addHeader("Authorization", "Basic realm=Neo4j "+ new sun.misc.BASE64Encoder().encode((":" + token).getBytes))
+        if(!username.isEmpty)
+            svc = svc.addHeader("Authorization", "Basic "+ new sun.misc.BASE64Encoder().encode((username + ":" + password).getBytes))
 
         if(secure)
             svc.secure
