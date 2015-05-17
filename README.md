@@ -1,4 +1,4 @@
-| Neold | [![Build Status](https://travis-ci.org/elbywan/neold.svg?branch=dev)](https://travis-ci.org/elbywan/neold) | [![Coverage Status](https://coveralls.io/repos/elbywan/neold/badge.svg?branch=dev)](https://coveralls.io/r/elbywan/neold?branch=dev)
+| Neold | [![Build Status](https://travis-ci.org/elbywan/neold.svg?branch=master)](https://travis-ci.org/elbywan/neold) | [![Coverage Status](https://coveralls.io/repos/elbywan/neold/badge.svg?branch=master)](https://coveralls.io/r/elbywan/neold?branch=master)
 =====
 
 **Neold** is an high performance, programmer-friendly asynchronous Neo4j REST client driver written in scala.
@@ -15,9 +15,9 @@
 Add the following lines to your sbt build file :
 
 ```scala
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers += Resolver.sonatypeRepo("releases")
 
-libraryDependencies += "com.github.elbywan" %% "neold" % "0.2-SNAPSHOT"
+libraryDependencies += "com.github.elbywan" %% "neold" % "0.2"
 ```
 
 To play around with the library, type `sbt console`.
