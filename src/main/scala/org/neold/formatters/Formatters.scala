@@ -9,6 +9,10 @@ object FormatterTools{
     case class EscapedString(str: String){
         override def toString : String = { str }
     }
+    //Disable String escaping
+    case class NotEscapedString(str: String){
+        override def toString : String = { str }
+    }
 
     /**
      * Escape Neo4J special characters.
@@ -28,7 +32,7 @@ object FormatterTools{
         parameters.map { kv: (String, Any) =>
             val fullyTrimmed = kv._2.toString.replaceAll("\\A\\s+", "").replaceAll("\\s+\\z", "")
             val firstChar = if(fullyTrimmed.length > 0) fullyTrimmed.charAt(0) else 0
-            if(kv._2.isInstanceOf[EscapedString] || firstChar != '{' && firstChar != '[')
+            if(kv._2.isInstanceOf[EscapedString] || firstChar != '{' && firstChar != '[' && !kv._2.isInstanceOf[NotEscapedString])
                 (kv._1, "\""+escapeSpecialChars(kv._2.toString)+"\"")
             else
                 (kv._1, fullyTrimmed)

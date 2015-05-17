@@ -29,9 +29,9 @@ Neold can interact with the [Transactional endpoint](http://neo4j.com/docs/stabl
 *All the sample code below require the following import line :*
 `import org.neold.core.Neold, org.neold.core.Neold._`
 
-*If you want to copy/paste these code snippets somewhere, don't forget that they are <b>asynchronous</b>. You <b>have</b> to keep the main thread from exiting to see the results.*
+*If you want to copy/paste these code snippets somewhere, don't forget that they are <b>asynchronous</b>.*
 
-*To use the library <b>synchronously</b> :*
+*If you want to use the library <b>synchronously</b> :*
 ```scala
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -171,6 +171,34 @@ neo.performBatch(){ result: String =>
 }
 ```
 
+### Force / disable parameter escaping
+
+When you build a parameter Map, Neold automatically escapes certain characters to comply with the Json format, 
+and adds double quotes around the parameter.
+Furthermore, when a parameter begins with `{` or `[`, it is considered an object or an array, and the quotes are omitted.
+
+You can completely disable (or force) the escaping and the quotes by using the following methods :
+
+```scala
+neo.executeImmediate(
+    //Property forcefully escaped using the method :?, even if its first character is a {.
+    "CREATE (n:Node {prop: {escaped}})" -> Map("escaped" -> :?("{{//\\escaped//\\}}")), 
+    //Property not escaped using the method :!, and is passed as an integer instead of a string.
+    "CREATE (n:Node {prop: {notescaped}})" -> Map("notescaped" -> :!("10")), 
+    "MATCH (n:Node) RETURN n" -> Map(),
+    "MATCH (n:Node) DELETE n" -> Map()
+){
+    result : String => println(result) 
+    /////
+    /// Json response :
+    // {"results":[{"columns":[],"data":[]},{"columns":[],"data":[]},{"columns":["n"],"data":[{"row":[{"prop":"{{//\\escaped//\\}}"}]},{"row":[{"prop":10}]}]},{"columns":[],"data":[]}],"errors":[]}
+    /// Properties :
+    // "prop":"{{//\\escaped//\\}}"
+    // "prop":10
+    ///
+}
+```
+
 ### Result handling
 
 Every Neo4j result is returned as a raw Json string by default to provide optimal performance.
@@ -294,3 +322,5 @@ The following libraries are used :
 ##TODO
 
 - Full REST API support
+- Constraints
+- Better concurrency

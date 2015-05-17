@@ -2,7 +2,7 @@ package org.neold.core
 
 import com.ning.http.client.Response
 import dispatch._
-import org.neold.formatters.FormatterTools.EscapedString
+import org.neold.formatters.FormatterTools._
 import org.neold.formatters.{LegacyCypherFormatter, TransactionalFormatter}
 
 import scala.collection.mutable.ArrayBuffer
@@ -13,9 +13,14 @@ object Neold {
     type Statement = (String, Map[String, Any])
     type Done = String => _
 
-    //Force string escaping
+    //Force String escaping
     def :?(str: String) : EscapedString = {
-        new EscapedString(str)
+        EscapedString(str)
+    }
+
+    //Disable String escaping
+    def :!(str: String) : NotEscapedString = {
+        NotEscapedString(str)
     }
 
     //Implicit dispatch thread pool

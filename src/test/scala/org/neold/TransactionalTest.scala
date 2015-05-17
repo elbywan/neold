@@ -6,7 +6,11 @@ import org.neold.adapters.Adapters._
 import org.neold.adapters.Adapters.TransactionalAdapter._
 import play.api.libs.json._
 
-class TransactionalTest extends FlatSpec with Matchers {
+class TransactionalTest extends FlatSpec with Matchers with BeforeAndAfterAll {
+
+    override def afterAll() = {
+        neo.executeImmediate1(fullDeleteQuery, params)()
+    }
 
     "[TRANSACTIONAL ENDPOINT] Neold" should "be able to create an index" in {
         val stringResult = waitCompletion(neo.createIndex(TEST_LABEL, TEST_PROPERTY)())
@@ -108,6 +112,22 @@ class TransactionalTest extends FlatSpec with Matchers {
                 beforeCount should equal (duringCount - 1)
                 beforeCount should equal (afterCount - 1)
         }
+    }
+
+    it must "escape and unescape parameters properly" in {
+        val result = toOption(
+            waitCompletion(
+                neo.executeImmediate(
+                    insertQueryId(1) -> escapeParams,
+                    insertQueryId(2) -> unescapeParams,
+                    getQuery -> Map()
+                )()
+            )
+        )
+
+        result.map{ _(2)(0)(s"$TEST_PROPERTY") } should equal (Some("{test}"))
+        result.map{ _(2)(1)(s"$TEST_PROPERTY").toInt } should equal (Some(10))
+
     }
 
 }

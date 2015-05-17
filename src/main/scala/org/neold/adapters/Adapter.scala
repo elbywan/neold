@@ -78,7 +78,13 @@ object Adapters{
                                 for{
                                     c <- columns
                                     item <- row
-                                } yield (c -> item.toString())
+                                } yield c -> {
+                                    item match {
+                                        case str : JsString =>
+                                            item.toString().substring(1, item.toString().length - 1)
+                                        case _ => item.toString()
+                                    }
+                                }
                             }.toMap
                         }
                     }.toArray
